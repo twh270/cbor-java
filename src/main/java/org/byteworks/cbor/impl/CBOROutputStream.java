@@ -6,6 +6,7 @@ import java.io.OutputStream;
 
 public class CBOROutputStream implements DataOutput {
   private OutputStream output;
+  private static final int UINT_8 = 0x18;
 
   public CBOROutputStream(OutputStream output) {
     this.output = output;
@@ -36,7 +37,12 @@ public class CBOROutputStream implements DataOutput {
 
   @Override
   public void writeByte(int v) throws IOException {
-    output.write(v);
+    if (v < 24) 
+      output.write(v);
+    else {
+      output.write(UINT_8);
+      output.write(v);
+    }
   }
 
   @Override
