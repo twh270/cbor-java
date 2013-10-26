@@ -88,12 +88,40 @@ public class WhenEncodingPositiveIntegers {
     assertWritten(3, 0x19, 0xff, 0xff);
   }
   
+  @Test
+  public void encodesSmallest32BitInteger() throws IOException {
+    int b = 0x10000;
+    os.writeInt(b);
+    assertWritten(5, 0x1a, 0x00, 0x01, 0x00, 0x00);
+  }
+  
+  @Test
+  public void encodesLargest32BitJavaInteger() throws IOException {
+    int b = Integer.MAX_VALUE;
+    os.writeInt(b);
+    assertWritten(5, 0x1a, 0x7f, 0xff, 0xff, 0xff);
+  }
+  
+  @Test
+  public void encodesSmallest64BitInteger() throws IOException {
+    long b = 0x0100000000L;
+    os.writeLong(b);
+    assertWritten(9, 0x1b, 0x00, 0x00, 0x00, 0x01, 0x0, 0x00, 0x00, 0x00);
+  }
+  
+  @Test
+  public void encodesLargest64BitJavaLong() throws IOException {
+    long b = Long.MAX_VALUE;
+    os.writeLong(b);
+  }
+  
   private void assertWritten(int length, int...expectedBytes) throws IOException {
     os.close();
     byte[] bytes = bos.toByteArray();
     assertEquals(length, bytes.length);
+    assertEquals(expectedBytes.length, bytes.length);
     for(int i = 0; i < expectedBytes.length; i++) {
-      assertEquals((byte) expectedBytes[i], bytes[i]);
+      assertEquals("byte mismatch at index " + i, (byte) expectedBytes[i], bytes[i]);
     }
   }
 }
