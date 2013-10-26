@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 public class CBOROutputStream implements DataOutput {
-  private OutputStream output;
   private static final int UINT_8 = 0x18;
+  private static final int UINT_16 = 0x19;
+  
+  private OutputStream output;
 
   public CBOROutputStream(OutputStream output) {
     this.output = output;
@@ -47,8 +49,9 @@ public class CBOROutputStream implements DataOutput {
 
   @Override
   public void writeShort(int v) throws IOException {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Not implemented: writeShort");
+    output.write(UINT_16);
+    output.write((v >>> 8) & 0xff);
+    output.write(v & 0xff);
   }
 
   @Override

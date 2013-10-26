@@ -19,59 +19,73 @@ public class WhenEncodingPositiveIntegers {
   }
   
   @Test
-  public void encodesZero() throws IOException {
+  public void encodesByte_0() throws IOException {
     int b = 0;
     os.write(b);
     assertWritten(1, b);
   }
 
   @Test
-  public void encodesOne() throws IOException {
+  public void encodesByte_1() throws IOException {
     int b = 1;
     os.write(b);
     assertWritten(1, b);
   }
 
   @Test
-  public void encodes10() throws IOException {
+  public void encodesByte_10() throws IOException {
     int b = 10;
     os.write(b);
     assertWritten(1, b);
   }
   
   @Test
-  public void encodes16() throws IOException {
+  public void encodesByte_16() throws IOException {
     int b = 16;
     os.write(b);
     assertWritten(1, b);
   }
   
   @Test
-  public void encodes23() throws IOException {
+  public void encodesByte_23() throws IOException {
     int b = 23;
     os.write(b);
     assertWritten(1, b);
   }
   
   @Test
-  public void encodes24() throws IOException {
+  public void encodesByte_24() throws IOException {
     int b = 24;
     os.write(b);
     assertWritten(2, 0x18, b);
   }
   
   @Test
-  public void encodes25() throws IOException {
+  public void encodesByte_25() throws IOException {
     int b = 25;
     os.write(b);
     assertWritten(2, 0x18, b);
   }
   
   @Test
-  public void encodes255() throws IOException {
+  public void encodesByte_255() throws IOException {
     int b = 255;
     os.write(b);
     assertWritten(2, 0x18, b);
+  }
+
+  @Test
+  public void encodesShort_256() throws IOException {
+    int b = 256;
+    os.writeShort(b);
+    assertWritten(3, 0x19, 1, 0);
+  }
+  
+  @Test
+  public void encodesLargest16BitInteger() throws IOException {
+    int b = 0xffff;
+    os.writeShort(b);
+    assertWritten(3, 0x19, 0xff, 0xff);
   }
   
   private void assertWritten(int length, int...expectedBytes) throws IOException {
