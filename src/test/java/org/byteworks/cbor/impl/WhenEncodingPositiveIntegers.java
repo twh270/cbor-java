@@ -5,17 +5,19 @@ import static org.junit.Assert.assertEquals;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import org.byteworks.cbor.UInt;
+import org.byteworks.cbor.UInt.UInt64;
 import org.junit.Before;
 import org.junit.Test;
 
 public class WhenEncodingPositiveIntegers {
   private ByteArrayOutputStream bos;
-  private CBOROutputStream os;
+  private CBOROutputStreamImpl os;
 
   @Before
   public void beforeTest() {
     bos = new ByteArrayOutputStream();
-    os = new CBOROutputStream(bos);
+    os = new CBOROutputStreamImpl(bos);
   }
   
   @Test
@@ -113,6 +115,14 @@ public class WhenEncodingPositiveIntegers {
   public void encodesLargest64BitJavaLong() throws IOException {
     long b = Long.MAX_VALUE;
     os.writeLong(b);
+    assertWritten(9, 0x1b, 0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
+  }
+  
+  @Test
+  public void encodesLargestUInt() throws Exception {
+    UInt i = UInt.create(UInt64.MAX_VALUE);
+    os.write(i);
+    assertWritten(9, 0x1b, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
   }
   
   private void assertWritten(int length, int...expectedBytes) throws IOException {

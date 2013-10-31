@@ -1,10 +1,13 @@
 package org.byteworks.cbor.impl;
 
-import java.io.DataOutput;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class CBOROutputStream implements DataOutput {
+import org.byteworks.cbor.CBOROutputStream;
+import org.byteworks.cbor.UInt;
+import org.byteworks.cbor.UInt.UInt64;
+
+public class CBOROutputStreamImpl implements CBOROutputStream {
   private static final int UINT_8 = 0x18;
   private static final int UINT_16 = 0x19;
   private static final int UINT_32 = 0x1a;
@@ -12,7 +15,7 @@ public class CBOROutputStream implements DataOutput {
   
   private OutputStream output;
 
-  public CBOROutputStream(OutputStream output) {
+  public CBOROutputStreamImpl(OutputStream output) {
     this.output = output;
   }
 
@@ -119,4 +122,23 @@ public class CBOROutputStream implements DataOutput {
     output.close();
   }
 
+  @Override
+  public void write(UInt uint) throws IOException {
+    long longValue = uint.longValue();
+    if (longValue == -1) {
+      writeBigIntegerValue(uint);
+    }
+    else writeLong(longValue);
+  }
+
+  private void writeBigIntegerValue(UInt uint) throws IOException {
+    // just in case some joker figures out how to create a uint bigger than MAX_VALUE
+    if (!(uint.asBigInteger().compareTo(UInt64.MAX_VALUE) == 0)) {
+      throw new IOException("Illegal unsigned integer value " + uint.toString()); 
+    }
+    output.write(UINT_64);
+    for(int i = 0; i < 8; i++) {
+      output.write(0xff);
+    }
+  }
 }
