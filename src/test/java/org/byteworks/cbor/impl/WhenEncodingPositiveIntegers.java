@@ -91,6 +91,13 @@ public class WhenEncodingPositiveIntegers {
   }
   
   @Test
+  public void encodesLargestChar() throws Exception {
+    char c = 0xffff;
+    os.writeChar(c);
+    assertWritten(3, 0x19, 0xff, 0xff);
+  }
+  
+  @Test
   public void encodesSmallest32BitInteger() throws IOException {
     int b = 0x10000;
     os.writeInt(b);
