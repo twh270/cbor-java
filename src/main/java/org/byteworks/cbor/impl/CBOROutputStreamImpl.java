@@ -61,8 +61,9 @@ public class CBOROutputStreamImpl implements CBOROutputStream {
 
   @Override
   public void writeChar(int v) throws IOException {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Not implemented: writeChar");
+    output.write(UINT_16);
+    output.write((v >>> 8) & 0xff);
+    output.write(v & 0xff);
   }
 
   @Override
