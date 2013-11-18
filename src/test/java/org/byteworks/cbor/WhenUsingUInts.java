@@ -49,7 +49,7 @@ public class WhenUsingUInts {
     assertEquals(value, i.asBigInteger());
   }
 
-  private void createAndExpect(long value, Class type) {
+  private void createAndExpect(long value, Class<?> type) {
     UInt i = UInt.create(value);
     assertEquals(type, i.getClass());
     assertEquals(value, i.longValue());
