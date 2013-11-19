@@ -12,8 +12,11 @@ public class CBOROutputStreamImpl implements CBOROutputStream {
   private static final int UINT_16 = 0x19;
   private static final int UINT_32 = 0x1a;
   private static final int UINT_64 = 0x1b;
+  private static final int INT_16 = 0x39;
+  private static final int INT_32 = 0x3a;
+  private static final int INT_64 = 0x3b;
   private static final int NEGATIVE = 0b00100000;
-  
+
   private OutputStream output;
 
   public CBOROutputStreamImpl(OutputStream output) {
@@ -39,8 +42,7 @@ public class CBOROutputStreamImpl implements CBOROutputStream {
 
   @Override
   public void writeBoolean(boolean v) throws IOException {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Not implemented: writeBoolean");
+    output.write(v ? 0xf5 : 0xf4);
   }
 
   @Override
@@ -61,9 +63,20 @@ public class CBOROutputStreamImpl implements CBOROutputStream {
 
   @Override
   public void writeShort(int v) throws IOException {
-    output.write(UINT_16);
-    output.write((v >>> 8) & 0xff);
-    output.write(v & 0xff);
+    short vv = (short) v;
+    if (vv < 0) {
+      // Write as a negative
+      vv++;
+      vv = (short) (-vv);
+      output.write(INT_16);
+      output.write((vv >>> 8) & 0xff);
+      output.write(vv & 0xff);
+    }
+    else {
+      output.write(UINT_16);
+      output.write((vv >>> 8) & 0xff);
+      output.write(vv & 0xff);
+    }
   }
 
   @Override
@@ -75,24 +88,52 @@ public class CBOROutputStreamImpl implements CBOROutputStream {
 
   @Override
   public void writeInt(int v) throws IOException {
-    output.write(UINT_32);
-    output.write((v >>> 24) & 0xff);
-    output.write((v >>> 16) & 0xff);
-    output.write((v >>>  8) & 0xff);
-    output.write(v & 0xff);    
+    if (v < 0) {
+      // Write as a negative
+      v++;
+      v = -v;
+      output.write(INT_32);
+      output.write((v >>> 24) & 0xff);
+      output.write((v >>> 16) & 0xff);
+      output.write((v >>> 8) & 0xff);
+      output.write(v & 0xff);
+    }
+    else {
+      output.write(UINT_32);
+      output.write((v >>> 24) & 0xff);
+      output.write((v >>> 16) & 0xff);
+      output.write((v >>> 8) & 0xff);
+      output.write(v & 0xff);
+    }
   }
 
   @Override
   public void writeLong(long v) throws IOException {
-    output.write(UINT_64);
-    output.write((int)((v >> 56) & 0xff));
-    output.write((int)((v >> 48) & 0xff));
-    output.write((int)((v >> 40) & 0xff));
-    output.write((int)((v >> 32) & 0xff));
-    output.write((int)((v >> 24) & 0xff));
-    output.write((int)((v >> 16) & 0xff));
-    output.write((int)((v >> 8) & 0xff));
-    output.write((int)(v & 0xff));
+    if (v < 0) {
+      // Write as a negative
+      v++;
+      v = -v;
+      output.write(INT_64);
+      output.write((int) ((v >> 56) & 0xff));
+      output.write((int) ((v >> 48) & 0xff));
+      output.write((int) ((v >> 40) & 0xff));
+      output.write((int) ((v >> 32) & 0xff));
+      output.write((int) ((v >> 24) & 0xff));
+      output.write((int) ((v >> 16) & 0xff));
+      output.write((int) ((v >> 8) & 0xff));
+      output.write((int) (v & 0xff));
+    }
+    else {
+      output.write(UINT_64);
+      output.write((int) ((v >> 56) & 0xff));
+      output.write((int) ((v >> 48) & 0xff));
+      output.write((int) ((v >> 40) & 0xff));
+      output.write((int) ((v >> 32) & 0xff));
+      output.write((int) ((v >> 24) & 0xff));
+      output.write((int) ((v >> 16) & 0xff));
+      output.write((int) ((v >> 8) & 0xff));
+      output.write((int) (v & 0xff));
+    }
   }
 
   @Override
@@ -136,16 +177,17 @@ public class CBOROutputStreamImpl implements CBOROutputStream {
     if (longValue == -1) {
       writeBigIntegerValue(uint);
     }
-    else writeLong(longValue);
+    else
+      writeLong(longValue);
   }
 
   private void writeBigIntegerValue(UInt uint) throws IOException {
     // just in case some joker figures out how to create a uint bigger than MAX_VALUE
     if (!(uint.asBigInteger().compareTo(UInt64.MAX_VALUE) == 0)) {
-      throw new IOException("Illegal unsigned integer value " + uint.toString()); 
+      throw new IOException("Illegal unsigned integer value " + uint.toString());
     }
     output.write(UINT_64);
-    for(int i = 0; i < 8; i++) {
+    for (int i = 0; i < 8; i++) {
       output.write(0xff);
     }
   }

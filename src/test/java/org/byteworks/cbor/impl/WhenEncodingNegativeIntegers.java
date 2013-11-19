@@ -124,7 +124,7 @@ public class WhenEncodingNegativeIntegers {
     assertEquals(length, bytes.length);
     assertEquals(expectedBytes.length, bytes.length);
     for(int i = 0; i < expectedBytes.length; i++) {
-      assertEquals("byte mismatch at index " + i, (byte) expectedBytes[i], (byte) bytes[i]);
+      assertEquals("byte mismatch at index " + i, (byte) expectedBytes[i], bytes[i]);
     }
   }
 
