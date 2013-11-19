@@ -28,6 +28,19 @@ public class WhenEncodingPositiveIntegers {
   }
 
   @Test
+  public void encodesTrue() throws IOException {
+    os.writeBoolean(true);
+    assertWritten(1, 0xf5);
+  }
+
+  @Test
+  public void encodesFalse() throws IOException {
+    os.writeBoolean(false);
+    assertWritten(1, 0xf4);
+  }
+
+  
+  @Test
   public void encodesByte_1() throws IOException {
     int b = 1;
     os.write(b);
@@ -85,9 +98,9 @@ public class WhenEncodingPositiveIntegers {
   
   @Test
   public void encodesLargest16BitInteger() throws IOException {
-    int b = 0xffff;
+    int b = Short.MAX_VALUE;
     os.writeShort(b);
-    assertWritten(3, 0x19, 0xff, 0xff);
+    assertWritten(3, 0x19, 0x7f, 0xff);
   }
   
   @Test
