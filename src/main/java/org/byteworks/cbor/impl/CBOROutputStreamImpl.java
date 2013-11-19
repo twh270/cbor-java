@@ -12,6 +12,7 @@ public class CBOROutputStreamImpl implements CBOROutputStream {
   private static final int UINT_16 = 0x19;
   private static final int UINT_32 = 0x1a;
   private static final int UINT_64 = 0x1b;
+  private static final int NEGATIVE = 0b00100000;
   
   private OutputStream output;
 
@@ -44,11 +45,17 @@ public class CBOROutputStreamImpl implements CBOROutputStream {
 
   @Override
   public void writeByte(int v) throws IOException {
-    if (v < 24) 
-      output.write(v);
+    if (v < 0) {
+      if (v > -24)
+        output.write(NEGATIVE | ((-1 - v) & 0x1f));
+    }
     else {
-      output.write(UINT_8);
-      output.write(v);
+      if (v < 24)
+        output.write(v);
+      else {
+        output.write(UINT_8);
+        output.write(v);
+      }
     }
   }
 
